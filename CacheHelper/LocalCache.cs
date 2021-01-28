@@ -1,49 +1,40 @@
-﻿using Salomon.Common.Helper.Utils;
-using System;
+﻿using System;
 using System.IO;
 
 namespace Salomon.Common.Helper
 {
-    public class LocalCacheOptions
-    {
-        public TagName TagName { get; set; } = "default";
-
-        public string DataMask { get; set; } = "yyMMdd";
-    }
-
     public class LocalCache<TOwner> //: ISubordinated<TOwner>
     {
         #region private 
-        //private static string _dataMask = "yyMMdd";
         private string _filename = null;
 
         private string Filename => _filename ?? (_filename = FileHelper.ObjectCacheFilename(typeof(TOwner), Options.TagName));
-        private int FileVersion => Version(File.GetLastWriteTimeUtc(Filename));
-        private int CurrentVersion => Version(DateTime.UtcNow);
+        private DateTime FileVersion => File.GetLastWriteTimeUtc(Filename);
+        private LocalCacheOptions Options { get; }
 
-        private int Version(DateTime datetime)
+        private bool GetValid()
         {
-            return datetime.ToString(Options.DataMask).ToInt();
+            var fileVer = FileVersion;
+            return DateTime.Compare(fileVer.Add(Options.Timeout), DateTime.UtcNow) > 0 && fileVer.Year > 1970;
         }
-
-        private bool Valid => CurrentVersion == FileVersion;
 
         #endregion
 
         #region ctor
-        public LocalCache(LocalCacheOptions options=null)
+        public LocalCache(LocalCacheOptions options = null)
         {
             this.Options = options ?? new LocalCacheOptions();
         }
 
-        //public LocalCache(string dataMask, TagName tagName = null) : this(tagName)
-        //{
-        //    _dataMask = dataMask;
-        //}
 
-        private LocalCacheOptions Options { get; }
 
         #endregion
+
+        /// <summary>
+        ///  return true if cache is up to date
+        /// </summary>
+        public bool Valid => GetValid();
+
 
         //protected virtual TagName TagName { get; private set; } = null;
         /// <summary>
@@ -98,7 +89,8 @@ namespace Salomon.Common.Helper
         /// </summary>
         /// <param name="method">return the data to be cached</param>
         /// <returns>cached data</returns>
-        public TOwner Fetch(Func<TOwner> method) {
+        public TOwner Fetch(Func<TOwner> method)
+        {
             return Fetch(this.Options, method);
         }
 

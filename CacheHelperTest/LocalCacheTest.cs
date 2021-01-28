@@ -1,4 +1,6 @@
 ﻿using Salomon.Common.Helper;
+using System;
+using System.Threading.Tasks;
 using Xunit;
 
 
@@ -61,6 +63,45 @@ namespace CommonTest
             var tmp = (new LocalCache<string>()).Load();
 
             Assert.Equal(tmpa,tmp);
+        }
+
+
+        [Fact]
+        public void should_invalidate_cache()
+        {
+            var time = 1000;
+            var opt = new LocalCacheOptions
+            {
+                TagName = "invalidate_test",
+                Timeout = TimeSpan.FromMilliseconds(time)
+            };
+
+            var cache = new LocalCache<string>(opt);
+            var objA = "abc";
+            
+            // clear cache
+            cache.Clear();
+            Assert.False(cache.Valid);
+            
+            // save a object to cache
+            cache.Save(objA);
+            Assert.True(cache.Valid);
+
+            // load same object from cache
+            var objB = cache.Load();
+
+            // wait cache invalidate
+            Task.Delay(time).Wait();
+
+            // check cache is invalid
+            Assert.False(cache.Valid);
+
+            // load object from out of date cache
+            var objC = cache.Load();
+
+            //  Data from cache is OK
+            Assert.Equal(objA, objB);
+            Assert.Equal(objB, objC);
         }
     }
 }
