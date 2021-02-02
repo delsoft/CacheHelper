@@ -12,7 +12,7 @@ namespace Salomon.Common.Helper
         {
             if (counter <= 0) throw new ApplicationException("ConvertVirtualPath stack overflow");
 
-           Match m = null;
+            Match m = null;
             //MatchCollection mc = null;
 
             //if (virtualPath.Contains("{config:") && (mc = Regex.Matches(virtualPath, @"\{config:(?<key>[^\}]+)\}")).Any())
@@ -89,7 +89,7 @@ namespace Salomon.Common.Helper
                 string appData = $"{Process.GetCurrentProcess().Id}";
                 virtualPath = Regex.Replace(virtualPath, m.Value, appData);
             }
-            
+
             return virtualPath;
         }
 
@@ -104,12 +104,26 @@ namespace Salomon.Common.Helper
             return SafePath(_convertVirtualPath(virtualPath));
         }
 
+        private static string _cachePath = null;
+
+        public static string CachePath(string tag = null)
+        {
+            if (_cachePath == null)
+            {
+                var cachePath = "sl_cache\\{stage}";
+                var sep = Path.DirectorySeparatorChar;
+                _cachePath = ConvertVirtualPath($"{Path.GetTempPath().TrimEnd(sep)}\\{cachePath}\\");
+            }
+            return _cachePath;
+        }
+
         public static string ObjectCacheFilename(Type type, string tag = null)
         {
             var cachePath = "sl_cache\\{stage}";
 
             var sep = Path.DirectorySeparatorChar;
             var path = type.FullName.Replace('.', sep).ToLower();
+            //path = Regex.Replace(path, "[\\[,\\]]", "_");
             return ConvertVirtualPath($"{Path.GetTempPath().TrimEnd(sep)}\\{cachePath}\\{path}{tag}._ch");
         }
 
@@ -138,6 +152,7 @@ namespace Salomon.Common.Helper
 
         public static string LoadFromFile(string filename)
         {
+
             return File.ReadAllText(FileHelper.ConvertVirtualPath(filename));
         }
 

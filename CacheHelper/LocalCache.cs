@@ -1,22 +1,35 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.IO;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Salomon.Common.Helper
 {
+
     public class LocalCache<TOwner> //: ISubordinated<TOwner>
     {
+        private CacheManifest _manifest;
         #region private 
-        private string _filename = null;
 
-        private string Filename => _filename ?? (_filename = FileHelper.ObjectCacheFilename(typeof(TOwner), Options.TagName));
-        private DateTime FileVersion => File.GetLastWriteTimeUtc(Filename);
-        private LocalCacheOptions Options { get; }
+        private string Filename => Manifest.Filename;
 
         private bool GetValid()
         {
             var fileVer = FileVersion;
             return DateTime.Compare(fileVer.Add(Options.Timeout), DateTime.UtcNow) > 0 && fileVer.Year > 1970;
         }
+
+        private DateTime FileVersion => File.GetLastWriteTimeUtc(Filename);
+
+        #endregion
+
+        #region protected
+
+        protected LocalCacheOptions Options { get; }
+
+        protected CacheManifest Manifest => _manifest ?? (_manifest = CreateManifest());
 
         #endregion
 
@@ -26,34 +39,35 @@ namespace Salomon.Common.Helper
             this.Options = options ?? new LocalCacheOptions();
         }
 
-
-
+        protected virtual CacheManifest CreateManifest()
+        {
+            return new CacheManifest(null, typeof(TOwner));
+        }
         #endregion
 
+        #region public
         /// <summary>
         ///  return true if cache is up to date
         /// </summary>
         public bool Valid => GetValid();
 
-
-        //protected virtual TagName TagName { get; private set; } = null;
         /// <summary>
         ///  Save object to local cache
         /// </summary>
         /// <param name="obj"></param>
-        public void Save(object obj)
+        public void Save(TOwner data)
         {
-            //  RowId = CurrentRowId();
-            FileHelper.SaveToGlobalCache(obj, Options.TagName);
+            FileHelper.SaveToFile(data, Filename);
         }
 
         /// <summary>
         /// Load object from local cache
         /// </summary>
         /// <returns></returns>
-        public TOwner Load()
+        public TOwner Load(object obj = null)
         {
-            return FileHelper.LoadFromGlobalCache<TOwner>(Options.TagName);
+            if (!File.Exists(Filename)) return default(TOwner);
+            return FileHelper.LoadFromFile<TOwner>(Filename);
         }
 
         /// <summary>
@@ -71,14 +85,13 @@ namespace Salomon.Common.Helper
         /// <param name="options">cache options</param>
         /// <param name="method">return the data to be cached</param>
         /// <returns>cached data</returns>
-        public static TOwner Fetch(LocalCacheOptions options, Func<TOwner> method)
+        public TOwner Fetch(LocalCacheOptions options, Func<TOwner> method)
         {
             var cache = new LocalCache<TOwner>(options);
 
             if (cache.Valid) return cache.Load();
 
             var data = method.Invoke();
-
             cache.Save(data);
 
             return data;
@@ -93,7 +106,23 @@ namespace Salomon.Common.Helper
         {
             return Fetch(this.Options, method);
         }
+        #endregion
+    }
 
+    public class LocalCache<TOwner, TFilter> : LocalCache<TOwner>
+    {
+        public LocalCache(TFilter filter, LocalCacheOptions options = null) : base(options)
+        {
+            this.Filter = filter;
+        }
+
+        public TFilter Filter { get; private set; }
+
+        protected override CacheManifest CreateManifest()
+        {
+            //base.CreateManifest();
+            return new CacheManifest(Filter, typeof(TOwner));
+        }
 
     }
 
