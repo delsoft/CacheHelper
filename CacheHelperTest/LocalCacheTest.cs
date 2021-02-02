@@ -81,7 +81,7 @@ namespace CommonTest
 
             };
 
-            var cache = new LocalCache<MockList>();
+            var cache = LocalCache.Invoke<MockList>();
             var tmpa = cache.Fetch(() =>
             {
                 return objs;
@@ -156,7 +156,7 @@ namespace CommonTest
             };
 
             // create caches
-            var cache1 = new LocalCache<MockCacheableClass, MockCacheFilter>(filter1);
+            var cache1 = LocalCache.Invoke<MockCacheableClass, MockCacheFilter>(filter1);
             var cache2 = new LocalCache<MockCacheableClass, MockCacheFilter>(filter2);
 
             // prepare caches

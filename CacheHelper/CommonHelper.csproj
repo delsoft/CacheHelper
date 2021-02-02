@@ -11,8 +11,10 @@
     <RootNamespace>Salomon.Common.Helper</RootNamespace>
     <Authors>Nardele Salomon</Authors>
     <PackageId>Salomon.CommonHelpers</PackageId>
-    <Version>1.1</Version>
-    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <Version>1.2</Version>
+    <AssemblyVersion>1.2.0.0</AssemblyVersion>
+    <PackageProjectUrl>https://github.com/delsoft/CommonHelper/blob/main/README.md</PackageProjectUrl>
+    <FileVersion>1.2.0.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

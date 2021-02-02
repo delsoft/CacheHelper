@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
@@ -107,6 +108,8 @@ namespace Salomon.Common.Helper
             return Fetch(this.Options, method);
         }
         #endregion
+
+
     }
 
     public class LocalCache<TOwner, TFilter> : LocalCache<TOwner>
@@ -126,4 +129,18 @@ namespace Salomon.Common.Helper
 
     }
 
+    public class LocalCache
+    {
+        
+        public static LocalCache<T> Invoke<T>()
+        {
+            return new LocalCache<T>();
+        }
+
+        public static LocalCache<T, F> Invoke<T, F>(F filter)
+        {
+            return new LocalCache<T, F>(filter);
+        }
+
+    }
 }
