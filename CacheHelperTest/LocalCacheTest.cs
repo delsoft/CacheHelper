@@ -168,29 +168,10 @@ namespace CommonTest
             cache1.Clear();
             cache2.Clear();
             
+            var data1 = cache1.Fetch(() => obj1);
+            var data2 = cache2.Fetch(()=> obj2);
             
-            cache1.Save(obj1);
-
-            var data1 = cache1.Load();
-            var data2 = cache2.Load();
-            
-            Assert.NotNull(data1);
-            Assert.Equal(data1,obj1);
-            
-            Assert.Null(data2);
-
-            //  save second data and filter
-            cache2.Save(obj2);
-
-            data1 = cache1.Load();
-            data2 = cache2.Load();
-
-            Assert.NotNull(data1);
-            Assert.NotNull(data2);
-            Assert.Equal(data1, obj1);
-            Assert.Equal(data2, obj2);
             Assert.NotEqual(data2, data1);
-
 
         }
     }

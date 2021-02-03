@@ -109,7 +109,7 @@ namespace Salomon.Common.Helper
 
         private TOwner _fetch(LocalCacheOptions options, Func<TOwner> method)
         {
-            var cache = new LocalCache<TOwner>(options);
+            var cache = this; 
 
             if (cache.Valid) return cache.Load();
 
