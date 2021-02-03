@@ -28,6 +28,7 @@ namespace Salomon.Common.Helper
 
         public CacheManifest(object filter, object data): this(filter, data?.GetType())
         {
+           
         }
 
         #endregion

@@ -58,6 +58,10 @@ namespace Salomon.Common.Helper
         /// <param name="obj"></param>
         public void Save(TOwner data)
         {
+
+            var path = Path.GetDirectoryName(Filename);
+            Directory.CreateDirectory(path);
+
             FileHelper.SaveToFile(data, Filename);
         }
 
@@ -87,6 +91,31 @@ namespace Salomon.Common.Helper
         /// <param name="method">return the data to be cached</param>
         /// <returns>cached data</returns>
         public TOwner Fetch(LocalCacheOptions options, Func<TOwner> method)
+        {
+            //var stage = ApplicationStage.Debug;
+            var stage = (options as LocalCacheOptionsEx)?.Stage ?? ApplicationStage.Debug;
+
+            switch (stage)
+            {
+#if DEBUG
+                case ApplicationStage.Debug:
+                    return _fetch(options, method);
+#elif TEST
+                case ApplicationStage.Test:
+                    return _fetch(options, method);
+#elif HOMOLOG
+                case ApplicationStage.Homolog:
+                    return _fetch(options, method);
+#elif RELEASE
+                case ApplicationStage.Production:
+                    return _fetch(options, method);
+#endif
+                default:
+                    return method.Invoke();
+            }
+        }
+
+        private TOwner _fetch(LocalCacheOptions options, Func<TOwner> method)
         {
             var cache = new LocalCache<TOwner>(options);
 
@@ -131,7 +160,7 @@ namespace Salomon.Common.Helper
 
     public class LocalCache
     {
-        
+
         public static LocalCache<T> Invoke<T>()
         {
             return new LocalCache<T>();

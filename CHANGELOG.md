@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2021-02-03
+### Added
+- Fetch with stage option
+
+## [1.2.0] - 2021-02-02
+### Added
+- Static helper
+
 ## [1.1.0] - 2021-02-02
 ### Added
 - Cache with Filter
