@@ -1,14 +1,10 @@
 ﻿using System;
 
 namespace Salomon.Common.Helper
-{
-    [Flags]
+{    
     public enum ApplicationStage
     {
-        Debug,
         Development,
-        Test,
-        Homolog,
         Production
     }
 
@@ -22,7 +18,7 @@ namespace Salomon.Common.Helper
 
     public class LocalCacheOptionsEx : LocalCacheOptions
     {
-        public ApplicationStage Stage { get; set; } = ApplicationStage.Debug;
+        public ApplicationStage Stage { get; set; } = ApplicationStage.Development;
 
     }
 

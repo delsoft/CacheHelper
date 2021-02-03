@@ -60,14 +60,19 @@ namespace CommonTest
         public void should_use_lambda_cache()
         {
             var stringCache = new LocalCache<string>();
+            
+            stringCache.Clear();
+            var xx = false;
+            var dt = "jkl";
             var tmpa = stringCache.Fetch(() =>
             {
-                return "jkl";
+                xx = true;
+                return dt;
             });
 
-            var tmp = (new LocalCache<string>()).Load();
-
-            Assert.Equal(tmpa, tmp);
+            //var tmp = (new LocalCache<string>()).Load();
+            Assert.True(xx);
+            Assert.Equal(tmpa, dt);
         }
 
         [Fact]

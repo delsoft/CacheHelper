@@ -92,27 +92,19 @@ namespace Salomon.Common.Helper
         /// <returns>cached data</returns>
         public TOwner Fetch(LocalCacheOptions options, Func<TOwner> method)
         {
-            //var stage = ApplicationStage.Debug;
-            var stage = (options as LocalCacheOptionsEx)?.Stage ?? ApplicationStage.Debug;
+            var stage = (options as LocalCacheOptionsEx)?.Stage ?? ApplicationStage.Development;
+            
+            ApplicationStage currentStage = default(ApplicationStage);
 
-            switch (stage)
-            {
-#if DEBUG
-                case ApplicationStage.Debug:
-                    return _fetch(options, method);
-#elif TEST
-                case ApplicationStage.Test:
-                    return _fetch(options, method);
-#elif HOMOLOG
-                case ApplicationStage.Homolog:
-                    return _fetch(options, method);
-#elif RELEASE
-                case ApplicationStage.Production:
-                    return _fetch(options, method);
-#endif
-                default:
-                    return method.Invoke();
-            }
+            if (System.Diagnostics.Debugger.IsAttached)
+                currentStage = ApplicationStage.Development;
+            else
+                currentStage = ApplicationStage.Production;
+
+            if (stage == currentStage)
+                return _fetch(options, method);
+            else
+                return method.Invoke();
         }
 
         private TOwner _fetch(LocalCacheOptions options, Func<TOwner> method)
