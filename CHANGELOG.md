@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.3] - 2021-02-03
+### Added
+- Fix fetch with stage
+
 ## [1.3.2] - 2021-02-03
 ### Added
 - set assembly strong name
