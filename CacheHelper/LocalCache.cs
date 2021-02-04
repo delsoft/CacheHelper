@@ -11,8 +11,9 @@ namespace Salomon.Common.Helper
 
     public class LocalCache<TOwner> //: ISubordinated<TOwner>
     {
-        private CacheManifest _manifest;
         #region private 
+
+        private CacheManifest _manifest;
 
         private string Filename => Manifest.Filename;
 
@@ -24,13 +25,32 @@ namespace Salomon.Common.Helper
 
         private DateTime FileVersion => File.GetLastWriteTimeUtc(Filename);
 
+        private CacheManifest GetManifest()
+        {
+            return new CacheManifest(Filter, typeof(TOwner));
+        }
+
+        private TOwner _fetch(LocalCacheOptions options, Func<TOwner> method)
+        {
+            var cache = this; 
+
+            if (cache.Valid) return cache.Load();
+
+            var data = method.Invoke();
+            cache.Save(data);
+
+            return data;
+        }
+        
+        private object Filter { get; set; }
+
         #endregion
 
         #region protected
 
         protected LocalCacheOptions Options { get; }
 
-        protected CacheManifest Manifest => _manifest ?? (_manifest = CreateManifest());
+        protected CacheManifest Manifest => _manifest ?? (_manifest = GetManifest());
 
         #endregion
 
@@ -40,13 +60,15 @@ namespace Salomon.Common.Helper
             this.Options = options ?? new LocalCacheOptions();
         }
 
-        protected virtual CacheManifest CreateManifest()
+        public LocalCache(object filter, LocalCacheOptions options = null) : this(options)
         {
-            return new CacheManifest(null, typeof(TOwner));
+            this.Filter = filter;
         }
+
         #endregion
 
         #region public
+        
         /// <summary>
         ///  return true if cache is up to date
         /// </summary>
@@ -69,7 +91,7 @@ namespace Salomon.Common.Helper
         /// Load object from local cache
         /// </summary>
         /// <returns></returns>
-        public TOwner Load(object obj = null)
+        public TOwner Load()
         {
             if (!File.Exists(Filename)) return default(TOwner);
             return FileHelper.LoadFromFile<TOwner>(Filename);
@@ -107,17 +129,6 @@ namespace Salomon.Common.Helper
                 return method.Invoke();
         }
 
-        private TOwner _fetch(LocalCacheOptions options, Func<TOwner> method)
-        {
-            var cache = this; 
-
-            if (cache.Valid) return cache.Load();
-
-            var data = method.Invoke();
-            cache.Save(data);
-
-            return data;
-        }
 
         /// <summary>
         /// Fetch data from cache or update them
@@ -130,24 +141,6 @@ namespace Salomon.Common.Helper
         }
         #endregion
 
-
-    }
-
-    public class LocalCache<TOwner, TFilter> : LocalCache<TOwner>
-    {
-        public LocalCache(TFilter filter, LocalCacheOptions options = null) : base(options)
-        {
-            this.Filter = filter;
-        }
-
-        public TFilter Filter { get; private set; }
-
-        protected override CacheManifest CreateManifest()
-        {
-            //base.CreateManifest();
-            return new CacheManifest(Filter, typeof(TOwner));
-        }
-
     }
 
     public class LocalCache
@@ -158,10 +151,15 @@ namespace Salomon.Common.Helper
             return new LocalCache<T>();
         }
 
-        public static LocalCache<T, F> Invoke<T, F>(F filter)
+        public static LocalCache<T> Invoke<T>(object filter)
         {
-            return new LocalCache<T, F>(filter);
+            return new LocalCache<T>(filter);
         }
 
+        public static void ClearAll()
+        {
+            var fn = FileHelper.CachePath();
+            Directory.Delete(fn, true);
+        }
     }
 }

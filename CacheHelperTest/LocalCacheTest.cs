@@ -161,8 +161,8 @@ namespace CommonTest
             };
 
             // create caches
-            var cache1 = LocalCache.Invoke<MockCacheableClass, MockCacheFilter>(filter1);
-            var cache2 = new LocalCache<MockCacheableClass, MockCacheFilter>(filter2);
+            var cache1 = LocalCache.Invoke<MockCacheableClass>(filter1);
+            var cache2 = new LocalCache<MockCacheableClass>(filter2);
 
             // prepare caches
             cache1.Clear();
