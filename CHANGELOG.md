@@ -6,13 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0] - 2021-02-04
+### Removed
+- strong type for the filter object
+
 ## [1.3.4] - 2021-02-03
-### Added
-- Fix fetch with filter
+### Fixed
+- fetch with filter
 
 ## [1.3.3] - 2021-02-03
-### Added
-- Fix fetch with stage
+### Fixed
+- fetch with stage
 
 ## [1.3.2] - 2021-02-03
 ### Added
